@@ -58,4 +58,14 @@ public class PersonaController {
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
+
+    @GetMapping("/listPersons")
+    public ResponseEntity<PersonaResponse> listPersons(){
+        PersonaResponse response = personaService.listPerson();
+        if(response.getCode().equals(Constants.OK_DNI_CODE)){
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        }else{
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
 }

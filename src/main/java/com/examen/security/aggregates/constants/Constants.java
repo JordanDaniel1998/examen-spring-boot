@@ -20,4 +20,7 @@ public class Constants {
     public static final Integer STATUS_ACTIVE = 1;
     public static final Integer STATUS_INACTIVE = 0;
     public static final String USER_STATE_INACTIVE = "USUARIO ELIMINADO";
+    public static final String USERS_ACTIVOS_LIST = "LISTADO DE USUARIOS ACTIVOS";
+    public static final Integer ERROR_CODE_LIST_EMPTY= 2009;
+    public static final String USERS_NOT_FOUND = "NO EXISTE USUARIOS";
 }

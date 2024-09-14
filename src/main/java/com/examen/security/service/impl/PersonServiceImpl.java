@@ -19,6 +19,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -75,10 +76,7 @@ public class PersonServiceImpl implements PersonaService {
     @Override
     public PersonaResponse personByDni(String dni) throws Exception {
 
-        Boolean isValidDni = validations.validateDni(dni);
-        if(isValidDni) {
-            throw new IllegalArgumentException("DNI no válido");
-        }
+        if(validations.validateDni(dni)) throw new IllegalArgumentException("DNI no válido, solo debe ser de 8 dígitos y numérico");
 
         ReniecResponse reniecResponse = searchFromReniec(dni);
 
@@ -105,10 +103,7 @@ public class PersonServiceImpl implements PersonaService {
             );
         }
 
-        Boolean isValidDni = validations.validateDni(dni);
-        if(isValidDni) {
-            throw new IllegalArgumentException("DNI no válido");
-        }
+        if(validations.validateDni(dni)) throw new IllegalArgumentException("DNI no válido");
 
         Optional<PersonaEntity> personaEntity = personaRepository.findByNumeroDocumento(dni);
         if(!personaEntity.isPresent()){
@@ -133,10 +128,8 @@ public class PersonServiceImpl implements PersonaService {
     @Override
     public PersonaResponse deletePerson(String dni) {
 
-        Boolean isValidDni = validations.validateDni(dni);
-        if(isValidDni) {
-            throw new IllegalArgumentException("DNI no válido");
-        }
+        if(validations.validateDni(dni)) throw new IllegalArgumentException("DNI no válido");
+
 
         Optional<PersonaEntity> personaEntity = personaRepository.findByNumeroDocumento(dni);
         if(Objects.nonNull(personaEntity)){
@@ -151,6 +144,29 @@ public class PersonServiceImpl implements PersonaService {
         PersonaResponse response = new PersonaResponse(
                 Constants.ERROR_DNI_CODE,
                 Constants.USER_NOT_FOUND_MESSAGE,
+                Optional.empty()
+        );
+        return response;
+    }
+
+    @Override
+    public PersonaResponse listPerson() {
+        Optional<List<PersonaEntity>> listUsers = personaRepository.findByEstado(Constants.STATUS_ACTIVE);
+        if(Objects.nonNull(listUsers)){
+            int size = listUsers.map(List::size).orElse(0);
+
+            if(size != 0) {
+                return new PersonaResponse(
+                        Constants.OK_DNI_CODE,
+                        Constants.USERS_ACTIVOS_LIST,
+                        listUsers
+                );
+            }
+
+        }
+        PersonaResponse response = new PersonaResponse(
+                Constants.ERROR_CODE_LIST_EMPTY
+                ,Constants.USERS_NOT_FOUND,
                 Optional.empty()
         );
         return response;

@@ -11,4 +11,5 @@ public interface PersonaService {
     PersonaResponse personByDni(String dni) throws Exception;
     PersonaResponse updatePerson(String dni, PersonaRequest personaRequest);
     PersonaResponse deletePerson(String dni);
+    PersonaResponse listPerson();
 }
