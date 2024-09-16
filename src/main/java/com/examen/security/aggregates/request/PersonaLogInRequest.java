@@ -5,8 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PersonaRequest {
-    private String numDoc;
+public class PersonaLogInRequest {
     private String email;
     private String password;
 }

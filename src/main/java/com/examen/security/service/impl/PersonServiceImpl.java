@@ -16,6 +16,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -41,37 +45,6 @@ public class PersonServiceImpl implements PersonaService {
     @Autowired
     private Validations validations;
 
-    @Override
-    public PersonaResponse createPerson(PersonaRequest personaRequest) {
-        try {
-            PersonaEntity persona = getPersonByEntity(personaRequest);
-
-            // Guardar en la BD
-            if(Objects.nonNull(persona)){
-                return new PersonaResponse(
-                        Constants.OK_DNI_CODE,
-                        Constants.USER_CREATE_MESSAGE,
-                        Optional.of(personaRepository.save(persona))
-                );
-            }
-            return null;
-        }catch (DataIntegrityViolationException e){
-            PersonaResponse response = new PersonaResponse(
-                    Constants.ERROR_DNI_CODE,
-                    Constants.USER_EXISTS_DNI,
-                    Optional.empty()
-            );
-            return response;
-
-        } catch (Exception e){
-            PersonaResponse response = new PersonaResponse(
-                    Constants.ERROR_DNI_CODE,
-                    Constants.USER_NOT_FOUND_MESSAGE,
-                    Optional.empty()
-            );
-            return response;
-        }
-    }
 
     @Override
     public PersonaResponse personByDni(String dni) throws Exception {
@@ -95,7 +68,7 @@ public class PersonServiceImpl implements PersonaService {
     public PersonaResponse updatePerson(String dni, PersonaRequest personaRequest) {
 
         // Verificar que exista datos de entrada
-        if(personaRequest.getApellidoPaterno().equals(("")) || personaRequest.getNombres().equals((""))){
+        if(personaRequest.getEmail().equals(("")) || personaRequest.getPassword().equals((""))){
             return new PersonaResponse(
                     Constants.ERROR_INFORMATION_USER,
                     Constants.USER_NOT_UPDATE,
@@ -115,8 +88,8 @@ public class PersonServiceImpl implements PersonaService {
         }
 
         PersonaEntity person = personaEntity.get();
-        person.setNombres(personaRequest.getNombres());
-        person.setApellidoPaterno(personaRequest.getApellidoPaterno());
+        person.setEmail(personaRequest.getEmail());
+        person.setPassword(new BCryptPasswordEncoder().encode(personaRequest.getPassword()));
 
         return new PersonaResponse(
                 Constants.OK_DNI_CODE,
@@ -173,29 +146,20 @@ public class PersonServiceImpl implements PersonaService {
     }
 
 
-    // Métodos
-
-    private PersonaEntity getPersonByEntity(PersonaRequest personaRequest){
-        String auth = "Bearer " + token;
-        PersonaEntity personaEntity = new PersonaEntity();
-        // Busca la persona en la API externa
-        ReniecResponse response = reniecClient.getPersonaReniec(personaRequest.getNumDoc(), auth);
-        if(Objects.nonNull(response)){
-            // Almacenar la respuesta en el objeto
-            personaEntity.setNombres(response.getNombres());
-            personaEntity.setApellidoPaterno(response.getApellidoPaterno());
-            personaEntity.setApellidoMaterno(response.getApellidoMaterno());
-            personaEntity.setTipoDocumento(response.getTipoDocumento());
-            personaEntity.setNumeroDocumento(response.getNumeroDocumento());
-            personaEntity.setDigitoVerificador(response.getDigitoVerificador());
-            personaEntity.setUsua_crea(Constants.USU_CREA);
-            personaEntity.setEstado(Constants.STATUS_ACTIVE);
-            personaEntity.setDate_crea(new Timestamp(System.currentTimeMillis()));
-            return personaEntity;
-        }
-        return null;
+    @Override
+    public UserDetailsService userDetailsService() {
+        return new UserDetailsService() {
+            @Override
+            public UserDetails loadUserByUsername(String username)
+                    throws UsernameNotFoundException {
+                return personaRepository.findByEmail(username).orElseThrow(
+                        ()-> new UsernameNotFoundException("USUARIO NO ENCONTRADO"));
+            }
+        };
     }
 
+
+    // Métodos
     private ReniecResponse searchFromReniec(String dni){
         String data = redisService.getDataFromRedis(Constants.REDIS_KEY_API_PERSON + dni);
         if (Objects.nonNull(data)){

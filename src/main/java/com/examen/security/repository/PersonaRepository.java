@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface PersonaRepository extends JpaRepository<PersonaEntity, Long> {
 
     Optional<PersonaEntity> findByNumeroDocumento(String dni);
-    Optional<List<PersonaEntity>> findByEstado(Integer state);
+    Optional<List<PersonaEntity>> findByEstado(Boolean state);
+    Optional<PersonaEntity> findByEmail(String email);
 }

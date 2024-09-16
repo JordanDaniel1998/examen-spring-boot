@@ -10,21 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/personas/v1")
+@RequestMapping("/api/users/v1/")
 public class PersonaController {
 
     @Autowired
     private PersonaService personaService;
-
-    @PostMapping("/create")
-    public ResponseEntity<PersonaResponse> createPerson(@RequestBody PersonaRequest personaRequest) {
-        PersonaResponse response = personaService.createPerson(personaRequest);
-        if(response.getCode().equals(Constants.OK_DNI_CODE)){
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-        }else{
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-    }
 
     @GetMapping("/searchByDniReniec/{dni}")
     public ResponseEntity<PersonaResponse> createPerson(@PathVariable("dni") String dni) throws Exception {

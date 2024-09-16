@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.naming.AuthenticationException;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -22,7 +23,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<PersonaResponse> controllerExceptionGeneral(Exception exception){
         PersonaResponse response = new PersonaResponse(
                 Constants.ERROR_TRX_CODE,
-                Constants.ERROR_TRX_MESS,
+                Constants.ERROR_TRX_MESS + " - " + exception.getMessage(),
                 Optional.empty()
         );
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
@@ -43,6 +44,16 @@ public class GlobalExceptionHandler {
         PersonaResponse response = new PersonaResponse(
                 Constants.ERROR_DNI_CODE_USER,
                 resourceNotFoundException.getMessage(),
+                Optional.empty()
+        );
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<PersonaResponse> authenticate(AuthenticationException illegalArgumentException){
+        PersonaResponse response = new PersonaResponse(
+                Constants.ERROR_TRX_CODE,
+                illegalArgumentException.getMessage() + "----",
                 Optional.empty()
         );
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);

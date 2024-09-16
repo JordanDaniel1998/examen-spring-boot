@@ -17,10 +17,21 @@ public class Constants {
     public static final Integer ERROR_INFORMATION_USER = 4000;
     public static final String USER_NOT_UPDATE = "TODOS LOS CAMPOS SON OBLIGATORIOS";
     public static final String USER_EXISTS_DNI = "EL USUARIO YA EXISTE";
-    public static final Integer STATUS_ACTIVE = 1;
-    public static final Integer STATUS_INACTIVE = 0;
+    public static final Boolean STATUS_ACTIVE = true;
+    public static final Boolean STATUS_INACTIVE = false;
     public static final String USER_STATE_INACTIVE = "USUARIO ELIMINADO";
     public static final String USERS_ACTIVOS_LIST = "LISTADO DE USUARIOS ACTIVOS";
     public static final Integer ERROR_CODE_LIST_EMPTY= 2009;
     public static final String USERS_NOT_FOUND = "NO EXISTE USUARIOS";
+
+    public static final String CLAVE_AccountNonExpired ="isAccountNonExpired";
+    public static final String CLAVE_AccountNonLocked ="isAccountNonLocked";
+    public static final String CLAVE_CredentialsNonExpired = "isCredentialsNonExpired";
+    public static final String CLAVE_Enabled = "isEnabled";
+    public static final String CLAIM_ROLE = "rol";
+
+    public static final String ENPOINTS_PERMIT = "/api/authentication/v1/**";
+    public static final String ENPOINTS_USER = "/api/users/v1/**";
+    public static final String ENPOINTS_ADMIN = "/api/users/v1/**";
+
 }
